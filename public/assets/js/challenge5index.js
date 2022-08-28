@@ -1,5 +1,3 @@
-// https://digibrill.github.io/WorkDayScheduler-challenge5/
-// https://github.com/digibrill/WorkDayScheduler-challenge5
 
 var week = [];
 /* Page Elements */
@@ -108,9 +106,7 @@ function loadWeek(){
     }
 }
 
-// User leaves textarea - Not used right now
-/*$('#alldays').delegate('textarea.edit','change',function() {
-    location.reload();
-});*/
+fs.writeFile(`index.html`, `<!DOCTYPE html></html>`, (err) =>
+            err ? console.error(err) : console.log('Team members saved!'));
 
 loadWeek();
