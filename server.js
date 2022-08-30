@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
-const api = require('./routes/index.js');
+const { readFile } = require('fs');
+const fs = require('fs');
+const uuid = require('./helpers/uuid');
 
 const PORT = 3001;
 
@@ -9,20 +11,103 @@ const app = express();
 // Middleware for parsing JSON and urlencoded form data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/api', api);
+//app.use('/api', api);
 
 app.use(express.static('public'));
 
-// GET Route for feedback page
-app.get('*', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/index.html'))
-);
 
-// GET Route for homepage
+// GET Route for notes page
 app.get('/notes', (req, res) =>
   res.sendFile(path.join(__dirname, '/public/notes.html'))
 );
 
+// GET Route for API
+app.get('/api/notes', (req, res) => {
+  const json = readFile('./db/db.json', 'utf8', (err, data) => {
+    //console.log(json);
+    if (err) {
+      console.error(err);
+    } else {
+      const parsedNotes = JSON.parse(data);
+      return parsedNotes;
+    }
+  })
+});
+
+// POST Route for API
+// Receive new note with request body and add to db.json
+// and return new note to client. Use unique ID with NPM package
+
+app.post('/api/notes', (req, res) => {
+  const { title, text } = req.body;
+  
+  // If all the required properties are present
+  if (title && text) {
+    // Variable for the object we will save
+    const newNote = {
+      title,
+      text
+    };
+
+    const json = readFile('./db/db.json', 'utf8', (err, data) => {
+      //console.log(json);
+      if (err) {
+        console.error(err);
+      } else {
+        const parsedNotes = JSON.parse(data);
+        //console.log(parsedNotes);
+        // Add new note
+        parsedNotes.push(newNote);
+        // Save updated notes back to the file
+        fs.writeFile(
+            './db/db.json',
+            JSON.stringify(parsedNotes, null, 4),
+            (writeErr) =>
+              writeErr
+                ? console.error(writeErr)
+                : console.info('Successfully updated notes!')
+        );
+      }
+    })
+    const response = {
+      status: 'correct!',
+      body: newNote,
+    };
+    console.log(response);
+    res.status(201).json(response);
+  } else {
+    res.status(500).json('Error in posting note');
+  }
+}); 
+    /*const response = {
+      status: 'success',
+      body: 'test',
+    };
+
+    console.log(response);
+    res.status(201).json(response);*/
+
+  //} else {
+    //res.status(500).json('Error in posting review');
+  // //}
+    //const jsonObj = JSON.stringify(json);
+  // console.log(readFile);
+  //res.json(`${req.method} request received to get reviews`);
+  // Log our request to the terminal
+  //console.info(`${req.method} request received to get reviews`);
+   // fs.writeFile(path.join(__dirname, './db/db.json'));
+// read db.json and return all saved notes as JSON
+
+
+// EXTRA CREDIT - DELETE Route for API
+app.delete('/api/notes', (req, res) =>
+  res.sendFile(path.join(__dirname, '/public/notes.html'))
+); // query param with note ID to delete. Read all notes, delete and then rewrite
+
+// GET Route for index page
+app.get('*', (req, res) =>
+  res.sendFile(path.join(__dirname, '/public/index.html'))
+);
 
 app.listen(PORT, () =>
   console.log(`App listening at http://localhost:${PORT} 🚀`)

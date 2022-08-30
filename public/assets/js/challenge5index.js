@@ -1,85 +1,91 @@
+const fs = require('fs');
+const express = require('express');
+const util = require('util');
+const json = require('db.json');
 
-var week = [];
 /* Page Elements */
-var todaysTimeEl = document.getElementById('todaysTime');
-var currentMonthEl = document.getElementById('currentMonth');
-var currentHour = moment().format('HH');
-var hourArray = $( "#alldays div" ).toArray();
-var hours = [['am9',9],['am10',10],['am11',11],['pm12',12],['pm1',13],['pm2',14],['pm3',15],['pm4',16],['pm5',17]];
+var saveBtn = document.querySelector('.save-note');
+var newBtn = document.querySelector('.new-note');
+var noteBody = document.querySelector('.note-textarea');
+var noteTitle = document.querySelector('.note-title');
+var sidebarList = document.querySelector("ul.list-group");
+var sidebarListItems = document.querySelectorAll("ul.list-group li");
+var navBarLink = document.querySelector('.navbar-brand');
+var notes = [];
 
-// time/date at top of page
-function updateTime() {
-    var currentTime = moment().format("[The current date and time is:] MMMM Do YYYY, hh:mm:ss a");
-    //var currentMonth = moment().format("MMMM");
-    todaysTimeEl.textContent = currentTime;
-    //currentMonthEl.textContent = currentMonth;
-};
-setInterval(updateTime, 1000);
-
-// Set button click actions
+// Set left nav click actions
 var i = 0;
-while(i < $(".setDateAndTime").length){
-    $(".setDateAndTime")[i].addEventListener("click",getDay);
+while(i < sidebarListItems.length){
+    sidebarListItems[i].addEventListener("click",getNote);
    i++;
 }
+//Onclick of left sidebar menu, open note/note title in center divs
 
-// On clicking button get day's events and send to saveDay()
-function getDay(e){
+//On clicking button get notes and send to saveNote()
+/*const getNotes = e =>{
     if(e.target.previousSibling.value !== ''){
-        //console.log('test');
-        saveDay(e.target.previousSibling.id, e.target.previousSibling.value);
+        saveNote(e.target.previousSibling.id, e.target.previousSibling.value);
     }else{
-        //e.target.preventDefault();
     }
-
-    //reload page on change
-    loadWeek();
-}
+    loadAllNotes();
+}*/
 
 // Save day's events
-function saveDay(sentId, sentValue){
+function saveNote(sentId, sentValue){
+/*  when note saved, grab center title and note content 
+    and save note to package.json and add note to left sidebar
+*/
+    /* Save to left nav */
+    const newNoteListItem = document.createElement('li');
+    newNoteListItem.textContent = noteTitle.value;
+    sidebarList.prepend(newNoteListItem);
 
-    var saveDayObj = {
+    /* Save to JSON */
+    let noteToSave = JSON.stringify({'Title': noteTitle.value, 'Text': noteBody.value});
+    fs.writeFile(`../db/db.json`, `noteToSave`);
+    //sidebarList.prepend(newNoteTitle);
+  /*  var saveNoteObj = {
         day: sentId,
         eventName: sentValue
     }
 
     // get saved scores from localstorage, or if not any, set to empty array
-    week = JSON.parse(window.localStorage.getItem("week")) || [];
-    for(k = 0; k < week.length; k++){
-        //console.log(week[k]);
+    notes = JSON.parse(window.localStorage.getItem("notes")) || [];
+    for(k = 0; k < notes.length; k++){
+        //console.log(notes[k]);
 
         // remove prior events for day
-        if(week[k].day == saveDayObj.day){ //|| week[k].eventName == ""
-            //saveDayObj.eventName = week[k].eventName;
+        if(notes[k].day == saveNoteObj.day){ //|| notes[k].eventName == ""
+            //saveNoteObj.eventName = notes[k].eventName;
            
-            week.splice(k, 1); // How can I remove the prior value?
+            notes.splice(k, 1); // How can I remove the prior value?
         }
     }
-    //console.log(week.length);
-    week.push(saveDayObj);
-    window.localStorage.setItem("week", JSON.stringify(week));
+    //console.log(notes.length);
+    notes.push(saveNoteObj);
+    window.localStorage.setItem("notes", JSON.stringify(notes));*/
 }
+newBtn.addEventListener('click', saveNote);
 
 // Load at startup
-function loadWeek(){
+function loadAllNotes(){
 
     // load saved
-    week = JSON.parse(window.localStorage.getItem("week")) || [];
+    notes = JSON.parse(window.localStorage.getItem("notes")) || [];
 
-    //load week
-    if(week.length > 0){
+    //load notes
+    if(notes.length > 0){
     
-        // loop week
-        for(var i = 0; i < week.length; i++){
+        // loop notes
+        for(var i = 0; i < notes.length; i++){
 
             // loop hours
             for(var j = 0; j < hours.length; j++){
 
-                // Does hour id match week id
-                if(week[i].day == hours[j][0]){
-                    var day = document.getElementById(week[i].day);
-                    day.value = week[i].eventName;
+                // Does hour id match notes id
+                if(notes[i].day == hours[j][0]){
+                    var day = document.getElementById(notes[i].day);
+                    day.value = notes[i].eventName;
 
                     // Row bkgd colors
                     // now red
@@ -106,7 +112,7 @@ function loadWeek(){
     }
 }
 
-fs.writeFile(`index.html`, `<!DOCTYPE html></html>`, (err) =>
-            err ? console.error(err) : console.log('Team members saved!'));
+/*fs.writeFile(`index.html`, `<!DOCTYPE html></html>`, (err) =>
+            err ? console.error(err) : console.log('Team members saved!'));*/
 
-loadWeek();
+//loadAllNotes();
