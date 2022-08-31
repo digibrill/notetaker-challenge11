@@ -4,7 +4,7 @@ const { readFile } = require('fs');
 const fs = require('fs');
 const uuid = require('./helpers/uuid');
 
-const PORT = 3001;
+const PORT = process.env.PORT;
 
 const app = express();
 
@@ -32,10 +32,20 @@ app.get('/api/notes', (req, res) => {
   })
 });
 
-// EXTRA CREDIT - DELETE Route for API
-app.delete('/api/notes/${id}', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/notes.html'))
-); // query param with note ID to delete. Read all notes, delete and then rewrite
+app.delete('/api/notes/:id', (req, res) => {
+  if (req.body && req.params.id) {
+    const id = req.params.id;
+    for (let i = 0; i < notes.length; i++) {
+      const currentNote = notes[i];
+      if (currentNote.id === id) {
+
+        res.status(200).json(``);
+        return;
+      }
+    }
+    res.status(404).json('Review ID not found');
+  }
+});// query param with note ID to delete. Read all notes, delete and then rewrite
 
 // POST Route for API
 // Receive new note with request body and add to db.json
