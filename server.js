@@ -12,9 +12,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 //app.use('/api', api);
-
 app.use(express.static('public'));
-
 
 // GET Route for notes page
 app.get('/notes', (req, res) =>
@@ -29,10 +27,15 @@ app.get('/api/notes', (req, res) => {
       console.error(err);
     } else {
       const parsedNotes = JSON.parse(data);
-      return parsedNotes;
+      res.json(parsedNotes);
     }
   })
 });
+
+// EXTRA CREDIT - DELETE Route for API
+app.delete('/api/notes/${id}', (req, res) =>
+  res.sendFile(path.join(__dirname, '/public/notes.html'))
+); // query param with note ID to delete. Read all notes, delete and then rewrite
 
 // POST Route for API
 // Receive new note with request body and add to db.json
@@ -41,9 +44,9 @@ app.get('/api/notes', (req, res) => {
 app.post('/api/notes', (req, res) => {
   const { title, text } = req.body;
   
-  // If all the required properties are present
+  // If title and text are present
   if (title && text) {
-    // Variable for the object we will save
+  
     const newNote = {
       title,
       text
@@ -55,9 +58,9 @@ app.post('/api/notes', (req, res) => {
         console.error(err);
       } else {
         const parsedNotes = JSON.parse(data);
-        //console.log(parsedNotes);
-        // Add new note
+        // Add new note to array
         parsedNotes.push(newNote);
+
         // Save updated notes back to the file
         fs.writeFile(
             './db/db.json',
@@ -70,9 +73,10 @@ app.post('/api/notes', (req, res) => {
       }
     })
     const response = {
-      status: 'correct!',
+      status: 'Successful!',
       body: newNote,
     };
+    console.log(newNote);
     console.log(response);
     res.status(201).json(response);
   } else {
@@ -99,10 +103,7 @@ app.post('/api/notes', (req, res) => {
 // read db.json and return all saved notes as JSON
 
 
-// EXTRA CREDIT - DELETE Route for API
-app.delete('/api/notes', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/notes.html'))
-); // query param with note ID to delete. Read all notes, delete and then rewrite
+
 
 // GET Route for index page
 app.get('*', (req, res) =>
