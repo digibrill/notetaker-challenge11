@@ -2,7 +2,7 @@
 ```
 Simple Express Note Taker. Well maybe not so simple.
 
-* The URL of the functional, deployed application.
+* https://ancient-ridge-92206.herokuapp.com
 
 * https://github.com/digibrill/notetaker-challenge11
 
